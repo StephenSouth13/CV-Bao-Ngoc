@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 6%;
+    --foreground: 0 0% 100%;
+
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 100%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 38 35% 61%;
+    --primary-foreground: 0 0% 6%;
+
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 38 35% 61%;
+    --accent-foreground: 0 0% 6%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 38 35% 61%;
+
+    --radius: 0.75rem;
+
+    --gold: 38 35% 61%;
+    --gold-light: 38 45% 71%;
+    --dark: 0 0% 6%;
+  }
+
+  .light {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 38 35% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 95%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 38 35% 45%;
+    --accent-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 38 35% 45%;
+
+    --gold: 38 35% 45%;
+    --gold-light: 38 45% 55%;
+    --dark: 0 0% 10%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-light)));
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--gold)), hsl(var(--gold-light)));
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 30px hsl(var(--gold) / 0.3);
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
+/* Rich Text Editor Styles */
+.ql-container {
+  @apply bg-background text-foreground border-border;
+  min-height: 300px;
+}
+
+.ql-editor {
+  @apply text-foreground;
+  min-height: 300px;
+}
+
+.ql-toolbar {
+  @apply bg-secondary border-border;
+}
+
+.ql-stroke {
+  @apply stroke-foreground;
+}
+
+.ql-fill {
+  @apply fill-foreground;
+}
+
+.ql-picker-label {
+  @apply text-foreground;
+}
+
+/* Blog Content Styles */
+.prose-content {
+  @apply max-w-none;
+}
+
+.prose-content h1 {
+  @apply text-4xl font-bold mt-8 mb-4;
+}
+
+.prose-content h2 {
+  @apply text-3xl font-bold mt-6 mb-3;
+}
+
+.prose-content h3 {
+  @apply text-2xl font-semibold mt-4 mb-2;
+}
+
+.prose-content p {
+  @apply mb-4 leading-relaxed;
+}
+
+.prose-content ul,
+.prose-content ol {
+  @apply mb-4 ml-6;
+}
+
+.prose-content li {
+  @apply mb-2;
+}
+
+.prose-content img {
+  @apply rounded-lg my-6 max-w-full h-auto;
+}
+
+.prose-content a {
+  @apply text-primary underline hover:text-primary/80;
+}
+
+.prose-content blockquote {
+  @apply border-l-4 border-primary pl-4 italic my-4;
+}
+
+.prose-content code {
+  @apply bg-secondary px-2 py-1 rounded text-sm;
+}
+
+.prose-content pre {
+  @apply bg-secondary p-4 rounded-lg overflow-x-auto my-4;
+}
