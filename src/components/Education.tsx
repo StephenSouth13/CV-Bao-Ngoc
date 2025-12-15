@@ -22,13 +22,17 @@ const Education = () => {
 
   useEffect(() => {
     const fetchEducation = async () => {
-      const { data, error } = await supabase
-        .from("education")
-        .select("*")
-        .order("sort_order", { ascending: true });
+      try {
+        let res: any;
+        try {
+          res = await supabase.from("education").select("*").order("sort_order", { ascending: true });
+        } catch (e) {
+          res = await supabase.from("education").select("*");
+        }
 
-      if (!error && data) {
-        setEducation(data);
+        if (!res.error && res.data) setEducation(res.data);
+      } catch (err) {
+        console.error("Error fetching education:", err);
       }
     };
 

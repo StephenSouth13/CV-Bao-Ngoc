@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Moon, Sun, Menu, X, Globe, ShoppingCart } from "lucide-react";
+import { Menu, X, Globe, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useTheme } from "./ThemeProvider";
@@ -38,6 +38,15 @@ const Header = () => {
     }
   });
 
+  useEffect(() => {
+    const onChange = () => {
+      // reload page so header picks up new logo and favicon
+      window.location.reload();
+    };
+    window.addEventListener('site-logo-changed', onChange);
+    return () => window.removeEventListener('site-logo-changed', onChange);
+  }, []);
+
   const { data: navVisibility } = useQuery({
     queryKey: ['navigation-settings'],
     queryFn: async () => {
@@ -66,17 +75,22 @@ const Header = () => {
     }
   });
 
-  const { data: siteLogo = "TBL" } = useQuery({
+  const { data: siteLogo = { text: 'TBL', url: '' } } = useQuery({
     queryKey: ['site-logo'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('settings')
-        .select('value')
-        .eq('key', 'site_logo')
-        .single();
+        .select('key, value')
+        .in('key', ['site_logo','site_logo_url']);
 
-      if (error && error.code !== 'PGRST116') return "TBL";
-      return data?.value || "TBL";
+      if (error && error.code !== 'PGRST116') return { text: 'TBL', url: '' };
+      let text = 'TBL';
+      let url = '';
+      for (const row of data || []) {
+        if (row.key === 'site_logo') text = row.value;
+        if (row.key === 'site_logo_url') url = row.value;
+      }
+      return { text, url } as any;
     }
   });
 
@@ -119,7 +133,11 @@ const Header = () => {
             transition={{ duration: 0.5 }}
             className="text-xl lg:text-2xl font-bold text-gradient"
           >
-            {siteLogo}
+            {siteLogo.url ? (
+              <img src={siteLogo.url} alt="Logo" className="h-8" />
+            ) : (
+              siteLogo.text
+            )}
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -188,19 +206,6 @@ const Header = () => {
                 )}
               </Button>
             </Link>
-
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="hover:bg-primary/10"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-5 w-5 text-primary" />
-              ) : (
-                <Moon className="h-5 w-5 text-primary" />
-              )}
-            </Button>
 
             {/* Mobile Menu Button */}
             <Button

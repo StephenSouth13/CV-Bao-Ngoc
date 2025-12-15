@@ -99,6 +99,9 @@ export const getDefaultTheme = async (): Promise<Theme | null> => {
 export const applyTheme = (theme: Theme) => {
   const root = document.documentElement;
 
+  // Clear previous theme class
+  root.className = root.className.replace(/data-theme-\S+/g, '');
+
   // Apply all CSS variables from the theme
   Object.entries(theme.css_variables).forEach(([key, value]) => {
     root.style.setProperty(key, value);
@@ -109,6 +112,9 @@ export const applyTheme = (theme: Theme) => {
 
   // Add theme slug as data attribute for CSS selectors
   root.setAttribute("data-theme", theme.slug);
+
+  // Force re-render by dispatching custom event
+  window.dispatchEvent(new Event('theme-changed'));
 };
 
 /**

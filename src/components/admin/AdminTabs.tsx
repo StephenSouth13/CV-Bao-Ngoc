@@ -9,8 +9,6 @@ import AdminBlog from "./AdminBlog";
 import AdminBlogCategories from "./AdminBlogCategories";
 import AdminBlogTags from "./AdminBlogTags";
 import AdminContact from "./AdminContact";
-import AdminFooter from "./AdminFooter";
-import AdminSocial from "./AdminSocial";
 import AdminSubmissions from "./AdminSubmissions";
 import AdminChatbot from "./AdminChatbot";
 import AdminNavigationSettings from "./AdminNavigationSettings";
@@ -19,6 +17,8 @@ import AdminCertificates from "./AdminCertificates";
 import AdminStoreSettings from "./AdminStoreSettings";
 import AdminLogoSettings from "./AdminLogoSettings";
 import AdminThemes from "./AdminThemes";
+import AdminProductCategories from "./store/AdminProductCategories";
+import AdminProducts from "./store/AdminProducts";
 
 const AdminTabs = () => {
   return (
@@ -66,34 +66,13 @@ const AdminTabs = () => {
       </TabsContent>
 
       <TabsContent value="store">
-        <Tabs defaultValue="dashboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
-            <TabsTrigger value="dashboard">Doanh thu</TabsTrigger>
-            <TabsTrigger value="products">Sản phẩm</TabsTrigger>
-            <TabsTrigger value="categories">Danh mục</TabsTrigger>
-            <TabsTrigger value="orders">Đơn hàng</TabsTrigger>
-            <TabsTrigger value="settings">Cài đặt</TabsTrigger>
-          </TabsList>
-          <TabsContent value="dashboard">
-            <AdminStore />
-          </TabsContent>
-          <TabsContent value="settings">
-            <AdminStoreSettings />
-          </TabsContent>
-        </Tabs>
+        {/* AdminStore already renders its own nested tabs (dashboard/products/categories/orders) */}
+        <AdminStore />
       </TabsContent>
 
       <TabsContent value="contact">
-        <Tabs defaultValue="social" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="social">Mạng xã hội</TabsTrigger>
-            <TabsTrigger value="contact">Thông tin</TabsTrigger>
-            <TabsTrigger value="footer">Footer</TabsTrigger>
-          </TabsList>
-          <TabsContent value="social"><AdminSocial /></TabsContent>
-          <TabsContent value="contact"><AdminContact /></TabsContent>
-          <TabsContent value="footer"><AdminFooter /></TabsContent>
-        </Tabs>
+        {/* Unified contact admin: socials, contact info and footer_text are managed inside AdminContact */}
+        <AdminContact />
       </TabsContent>
 
       <TabsContent value="system">

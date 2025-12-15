@@ -1,9 +1,9 @@
 -- Add phone column to contact_submissions
 ALTER TABLE public.contact_submissions 
-ADD COLUMN phone text;
+ADD COLUMN IF NOT EXISTS phone text;
 
 -- Create footer_links table
-CREATE TABLE public.footer_links (
+CREATE TABLE IF NOT EXISTS public.footer_links (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   section text NOT NULL,
   label text NOT NULL,
@@ -27,7 +27,7 @@ USING (has_role(auth.uid(), 'admin'::app_role))
 WITH CHECK (has_role(auth.uid(), 'admin'::app_role));
 
 -- Create education table
-CREATE TABLE public.education (
+CREATE TABLE IF NOT EXISTS public.education (
   id uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   institution text NOT NULL,
   degree text NOT NULL,

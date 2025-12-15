@@ -36,18 +36,18 @@ USING (
 
 -- Add featured field to projects table
 ALTER TABLE public.projects 
-ADD COLUMN featured boolean DEFAULT false;
+ADD COLUMN IF NOT EXISTS featured boolean DEFAULT false;
 
 -- Add technologies field to projects table
 ALTER TABLE public.projects 
-ADD COLUMN technologies text[] DEFAULT '{}';
+ADD COLUMN IF NOT EXISTS technologies text[] DEFAULT '{}';
 
 -- Add full_description field for detail page
 ALTER TABLE public.projects 
-ADD COLUMN full_description text;
+ADD COLUMN IF NOT EXISTS full_description text;
 
 -- Add challenge and solution fields for detail page
 ALTER TABLE public.projects 
-ADD COLUMN challenge text;
+ADD COLUMN IF NOT EXISTS challenge text;
 ALTER TABLE public.projects 
-ADD COLUMN solution text;
+ADD COLUMN IF NOT EXISTS solution text;

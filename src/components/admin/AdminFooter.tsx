@@ -215,11 +215,7 @@ const AdminFooter = () => {
           </div>
         )}
 
-        {/* Embedded social links admin for convenience */}
-        <div className="pt-6">
-          <h3 className="text-lg font-medium mb-3">Quản lý Mạng xã hội</h3>
-          <AdminSocial />
-        </div>
+        {/* Note: Social links are now managed in the Contact admin to avoid duplicate places. */}
       </CardContent>
     </Card>
   );

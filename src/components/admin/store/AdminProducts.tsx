@@ -126,11 +126,25 @@ const AdminProducts = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
+      // Delete dependent rows first (order_items, cart_items) to avoid FK constraint errors
+      try {
+        // Delete order_items referencing this product (order_items.product_id has ON DELETE RESTRICT)
+        const { error: delOrderItemsErr } = await supabase.from('order_items').delete().eq('product_id', id);
+        if (delOrderItemsErr) throw delOrderItemsErr;
+
+        // Delete cart_items referencing this product (cart_items.product_id has ON DELETE CASCADE but delete explicitly)
+        const { error: delCartErr } = await supabase.from('cart_items').delete().eq('product_id', id);
+        if (delCartErr) throw delCartErr;
+
+        // Now delete the product
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .eq('id', id);
+        if (error) throw error;
+      } catch (err) {
+        throw err;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-products'] });

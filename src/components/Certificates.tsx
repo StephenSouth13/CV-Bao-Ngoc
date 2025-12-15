@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { resolvePublicImageUrl } from "@/lib/utils";
+import { getSignedUrlForValue } from "@/lib/imageHelpers";
 import { Award, ExternalLink, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -27,13 +29,20 @@ const Certificates = () => {
 
   useEffect(() => {
     const fetchCertificates = async () => {
-      const { data, error } = await supabase
-        .from("certificates")
-        .select("*")
-        .order("sort_order", { ascending: true });
+      try {
+        // try ordering by sort_order when available
+        let res: any;
+        try {
+          res = await supabase.from("certificates").select("*").order("sort_order", { ascending: true });
+        } catch (e) {
+          // fallback if column doesn't exist
+          res = await supabase.from("certificates").select("*");
+        }
 
-      if (!error && data) {
-        setCertificates(data);
+        if (!res.error && res.data) setCertificates(res.data);
+      } catch (err) {
+        // silent - keep certificates empty
+        console.error("Error fetching certificates:", err);
       }
     };
 
@@ -68,12 +77,25 @@ const Certificates = () => {
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <Card className="h-full overflow-hidden hover:shadow-lg transition-shadow group">
-                {cert.image_url && (
+                  {cert.image_url && (
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={cert.image_url}
+                      src={resolvePublicImageUrl(cert.image_url) || undefined}
                       alt={cert.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={async (e) => {
+                        // try to get a signed url fallback, otherwise hide image
+                        try {
+                          const signed = await getSignedUrlForValue(cert.image_url);
+                          if (signed) {
+                            (e.target as HTMLImageElement).src = signed;
+                            return;
+                          }
+                        } catch (err) {
+                          // ignore
+                        }
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   </div>
                 )}

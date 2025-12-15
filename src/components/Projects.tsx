@@ -7,6 +7,8 @@ import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { resolvePublicImageUrl } from "@/lib/utils";
+import { getSignedUrlForValue } from "@/lib/imageHelpers";
 
 interface Project {
   id: string;
@@ -166,9 +168,10 @@ const Projects = () => {
                   {project.image_url && (
                     <div className="relative h-48 overflow-hidden">
                       <img
-                        src={project.image_url}
+                        src={resolvePublicImageUrl(project.image_url) || undefined}
                         alt={project.title}
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                        onError={async (e) => { try { const signed = await getSignedUrlForValue(project.image_url); if (signed) { (e.target as HTMLImageElement).src = signed; return; } } catch (err) {} (e.target as HTMLImageElement).style.display = 'none'; }}
                       />
                       <div className="absolute top-4 right-4">
                         <span className="bg-primary/90 text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold">

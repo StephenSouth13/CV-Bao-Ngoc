@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowDown, Download } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { resolvePublicImageUrl } from "@/lib/utils";
+import { getSignedUrlForValue } from "@/lib/imageHelpers";
 
 const Hero = () => {
   const [heroData, setHeroData] = useState({
@@ -43,8 +45,52 @@ const Hero = () => {
     document.querySelector("#contact")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const displayProfileImage = heroData.profile_image_url;
-  const displayBackgroundImage = heroData.background_image_url;
+  const [displayProfileImage, setDisplayProfileImage] = useState<string | null>(null);
+  const [displayBackgroundImage, setDisplayBackgroundImage] = useState<string | null>(null);
+
+  useEffect(() => {
+    // resolve profile image with fallback to signed url
+    const pubProfile = resolvePublicImageUrl(heroData.profile_image_url);
+    if (!pubProfile) {
+      setDisplayProfileImage(null);
+    } else {
+      const img = new Image();
+      img.onload = () => setDisplayProfileImage(pubProfile);
+      img.onerror = async () => {
+        const signed = await getSignedUrlForValue(heroData.profile_image_url);
+        if (signed) {
+          const img2 = new Image();
+          img2.onload = () => setDisplayProfileImage(signed);
+          img2.onerror = () => setDisplayProfileImage(null);
+          img2.src = signed;
+        } else {
+          setDisplayProfileImage(null);
+        }
+      };
+      img.src = pubProfile;
+    }
+
+    // resolve background image with fallback to signed url
+    const pubBg = resolvePublicImageUrl(heroData.background_image_url);
+    if (!pubBg) {
+      setDisplayBackgroundImage(null);
+    } else {
+      const bgImg = new Image();
+      bgImg.onload = () => setDisplayBackgroundImage(pubBg);
+      bgImg.onerror = async () => {
+        const signed = await getSignedUrlForValue(heroData.background_image_url);
+        if (signed) {
+          const bg2 = new Image();
+          bg2.onload = () => setDisplayBackgroundImage(signed);
+          bg2.onerror = () => setDisplayBackgroundImage(null);
+          bg2.src = signed;
+        } else {
+          setDisplayBackgroundImage(null);
+        }
+      };
+      bgImg.src = pubBg;
+    }
+  }, [heroData.profile_image_url, heroData.background_image_url]);
 
   return (
     <section
@@ -76,6 +122,9 @@ const Hero = () => {
                 src={displayProfileImage}
                 alt={heroData.name}
                 className="relative w-40 h-40 sm:w-48 sm:h-48 lg:w-56 lg:h-56 rounded-full object-cover border-4 border-primary glow-gold"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
               />
             )}
           </motion.div>

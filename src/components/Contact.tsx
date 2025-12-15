@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useInView } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { Send, Mail, Phone, MapPin } from "lucide-react";
+import { Send, Mail, Phone, MapPin, MessageCircle, Linkedin, Facebook, Twitter, Github, Instagram, Youtube } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -73,8 +73,20 @@ const Contact = () => {
   const contactInfo = [
     { icon: Mail, label: "Email", value: contact?.email || "", href: contact?.email ? `mailto:${contact.email}` : null },
     { icon: Phone, label: "Phone", value: contact?.phone || "", href: contact?.phone ? `tel:${contact.phone}` : null },
-    { icon: MapPin, label: "Location", value: contact?.location || "", href: null }
+    { icon: MapPin, label: "Location", value: contact?.location || "", href: null },
+    { icon: MessageCircle, label: "WhatsApp", value: contact?.whatsapp || "", href: contact?.whatsapp ? `https://wa.me/${contact.whatsapp.replace(/[^0-9+]/g, '')}` : null }
   ].filter((i) => i.value);
+
+  const socialList = [
+    { provider: 'facebook', url: contact?.facebook_url },
+    { provider: 'linkedin', url: contact?.linkedin_url },
+    { provider: 'instagram', url: contact?.instagram_url },
+    { provider: 'twitter', url: contact?.twitter_url },
+    { provider: 'youtube', url: contact?.youtube_url },
+    { provider: 'github', url: contact?.github_url },
+    { provider: 'zalo', url: contact?.zalo_url },
+    { provider: 'tiktok', url: contact?.tiktok_url },
+  ].filter(s => s.url);
 
   return (
     <section id="contact" className="py-20 lg:py-32">
@@ -107,33 +119,90 @@ const Contact = () => {
                 </p>
               </div>
 
-              <div className="space-y-6">
-                {contactInfo.map((info, index) => (
+              <div className="space-y-8">
+                {/* Socials Section */}
+                {socialList.length > 0 && (
                   <motion.div
-                    key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={isInView ? { opacity: 1, x: 0 } : {}}
-                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                    className="flex items-start gap-4 group"
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className=""
                   >
-                    <div className="p-3 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                      <info.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">{info.label}</p>
-                      {info.href ? (
-                        <a
-                          href={info.href}
-                          className="font-medium hover:text-primary transition-colors"
-                        >
-                          {info.value}
-                        </a>
-                      ) : (
-                        <p className="font-medium">{info.value}</p>
-                      )}
+                    <h4 className="font-semibold mb-3">Mạng xã hội</h4>
+                    <div className="flex items-center gap-3">
+                      {socialList.map((s, idx) => {
+                        const provider = (s.provider || '').toLowerCase();
+                        let Icon: any = MessageCircle;
+                        if (provider.includes('linkedin')) Icon = Linkedin;
+                        else if (provider.includes('facebook')) Icon = Facebook;
+                        else if (provider.includes('twitter')) Icon = Twitter;
+                        else if (provider.includes('github') || provider.includes('git')) Icon = Github;
+                        else if (provider.includes('instagram')) Icon = Instagram;
+                        else if (provider.includes('youtube')) Icon = Youtube;
+
+                        return (
+                          <a key={idx} href={s.url} target="_blank" rel="noreferrer" className="p-2 rounded bg-card border border-border hover:border-primary transition">
+                            <Icon className="h-5 w-5 text-primary" />
+                          </a>
+                        );
+                      })}
                     </div>
                   </motion.div>
-                ))}
+                )}
+
+                {/* Info Section */}
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={isInView ? { opacity: 1, x: 0 } : {}}
+                  transition={{ duration: 0.5, delay: 0.5 }}
+                >
+                  <h4 className="font-semibold mb-3">Thông tin</h4>
+                  <div className="space-y-4">
+                    {contactInfo.map((info, index) => (
+                      <div key={index} className="flex items-start gap-4">
+                        <div className="p-3 rounded-lg bg-primary/10">
+                          <info.icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-muted-foreground mb-1">{info.label}</p>
+                          {info.href ? (
+                            <a href={info.href} className="font-medium hover:text-primary transition-colors">{info.value}</a>
+                          ) : (
+                            <p className="font-medium">{info.value}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {contact.business_hours && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Giờ làm việc</p>
+                        <p className="font-medium">{contact.business_hours}</p>
+                      </div>
+                    )}
+
+                    {contact.tax_id && (
+                      <div>
+                        <p className="text-sm text-muted-foreground mb-1">Mã số thuế</p>
+                        <p className="font-medium">{contact.tax_id}</p>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+
+                {/* Footer Section (contact-specific footer text) */}
+                {contact.footer_text && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={isInView ? { opacity: 1, x: 0 } : {}}
+                    transition={{ duration: 0.5, delay: 0.6 }}
+                  >
+                    <h4 className="font-semibold mb-3">Footer</h4>
+                    <div className="text-sm text-muted-foreground">
+                      <p className="font-medium">{contact.footer_text}</p>
+                    </div>
+                  </motion.div>
+                )}
               </div>
 
               {(() => {

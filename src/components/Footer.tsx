@@ -9,6 +9,7 @@ interface SocialRow { id: string; provider: string; url: string; sort_order: num
 const Footer = () => {
   const [links, setLinks] = useState<FooterLink[]>([]);
   const [socials, setSocials] = useState<SocialRow[]>([]);
+  const [contactFooterText, setContactFooterText] = useState<string | null>(null);
 
   useEffect(() => {
     const load = async () => {
@@ -30,6 +31,23 @@ const Footer = () => {
         setSocials(data || []);
       } catch {
         setSocials([]);
+      }
+      // load contact footer text and social overrides
+      try {
+        const { data } = await supabase.from('contacts').select('footer_text, facebook_url, twitter_url, instagram_url, linkedin_url, youtube_url, github_url, zalo_url, tiktok_url').limit(1).maybeSingle();
+        if (data) {
+          setContactFooterText(data.footer_text || null);
+          // if any social fields are present, build socials from them (override)
+          const socialFields: any[] = [];
+          const providers = ['facebook','linkedin','instagram','twitter','youtube','github','zalo','tiktok'];
+          for (const p of providers) {
+            const key = `${p}_url`;
+            if (data[key]) socialFields.push({ id: `contact-${p}`, provider: p, url: data[key], sort_order: 0 });
+          }
+          if (socialFields.length > 0) setSocials(socialFields);
+        }
+      } catch {
+        // ignore
       }
     };
     load();

@@ -11,6 +11,8 @@ import FloatingChat from "@/components/FloatingChat";
 import BackToTop from "@/components/BackToTop";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { motion } from "framer-motion";
+import { resolvePublicImageUrl } from "@/lib/utils";
+import { getSignedUrlForValue } from "@/lib/imageHelpers";
 
 interface Project {
   id: string;
@@ -35,8 +37,8 @@ interface RelatedProject {
 }
 
 const ProjectDetail = () => {
-  const params = useParams<{ id: string }>();
-  const idOrSlug = params.id;
+  const params = useParams<{ slug: string }>();
+  const idOrSlug = params.slug;
   const [project, setProject] = useState<Project | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useLanguage();
@@ -166,12 +168,22 @@ const ProjectDetail = () => {
             <div className="grid lg:grid-cols-2 gap-12 items-start">
               {/* Image Section */}
               <div className="space-y-6">
-                {project.image_url && (
+                  {project.image_url && (
                   <div className="rounded-lg overflow-hidden border border-border shadow-lg">
                     <img
-                      src={project.image_url}
+                      src={resolvePublicImageUrl(project.image_url) || undefined}
                       alt={project.title}
                       className="w-full h-auto object-cover"
+                      onError={async (e) => {
+                        try {
+                          const signed = await getSignedUrlForValue(project.image_url);
+                          if (signed) {
+                            (e.target as HTMLImageElement).src = signed;
+                            return;
+                          }
+                        } catch (err) {}
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
                     />
                   </div>
                 )}
@@ -261,7 +273,7 @@ const ProjectDetail = () => {
                       {related.map((r) => (
                         <Card key={r.id} className="p-2">
                           {r.image_url && (
-                            <img src={r.image_url} alt={r.title} className="w-full h-28 object-cover rounded" />
+                            <img src={resolvePublicImageUrl(r.image_url) || undefined} alt={r.title} className="w-full h-28 object-cover rounded" onError={async (e) => { try { const signed = await getSignedUrlForValue(r.image_url); if (signed) { (e.target as HTMLImageElement).src = signed; return; } } catch (err) {} (e.target as HTMLImageElement).style.display = 'none'; }} />
                           )}
                           <CardContent>
                             <h4 className="font-semibold truncate">{r.title}</h4>

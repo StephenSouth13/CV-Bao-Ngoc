@@ -26,13 +26,14 @@ const Experience = () => {
 
   const fetchExperiences = async () => {
     try {
-      const { data, error } = await supabase
-        .from("experiences")
-        .select("*")
-        .order("sort_order", { ascending: true });
+      let res: any;
+      try {
+        res = await supabase.from("experiences").select("*").order("sort_order", { ascending: true });
+      } catch (e) {
+        res = await supabase.from("experiences").select("*");
+      }
 
-      if (error) throw error;
-      if (data) setExperiences(data);
+      if (!res.error && res.data) setExperiences(res.data);
     } catch (error) {
       console.error("Error fetching experiences:", error);
     }
